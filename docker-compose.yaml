@@ -1,0 +1,53 @@
+version: '3.1'
+
+services:
+ # mysql database
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always 
+    environment:
+      MYSQL_ROOT_PASSWORD: myPass
+      MYSQL_DATABASE: dockerWp
+      MYSQL_USER: saif
+      MYSQL_PASSWORD: myPass
+    networks:
+      - wpNetwork  
+  #phpmyadmin    
+  phpmyadmin: 
+    depends_on: 
+      - db
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+       PMA_HOST: db
+       MYSQL_ROOT_PASSWORD: myPass
+    networks:
+      - wpNetwork    
+ #wordpress
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    ports:
+      - 8000:80
+    restart: always
+    volumes: ["./:/var/www/html"]  
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: saif
+      WORDPRESS_DB_PASSWORD: myPass
+      WORDPRESS_DB_NAME: dockerWp
+    networks:
+      - wpNetwork    
+#network
+networks:
+  wpNetwork:
+volumes:
+  db_data:
+
+
+
